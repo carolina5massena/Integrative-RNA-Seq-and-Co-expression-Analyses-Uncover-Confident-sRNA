@@ -1,0 +1,94 @@
+###############################################
+# AUXILIARY COMMANDS – RNA-seq PIPELINE HELP
+#
+# This script shows:
+# 1) How to download raw reads from SRA
+# 2) How to convert SRA to FASTQ
+# 3) How to run nf-core/rnaseq
+# 4) How to run nf-core/differentialabundance
+#
+# Requirements:
+# - SRA Toolkit (prefetch, fasterq-dump)
+# - Nextflow
+# - Docker
+# - nf-core pipelines
+###############################################
+
+
+###############################################
+# STEP 1 — Download SRA file
+# This retrieves SRR28417311 from NCBI SRA
+###############################################
+
+prefetch SRR28417311
+
+
+###############################################
+# STEP 2 — Convert SRA to FASTQ
+# --split-files : separates paired-end reads
+# --threads 8   : use 8 CPU threads
+# -O            : output directory
+###############################################
+
+fasterq-dump SRR28417311 -O ./fastq_files --split-files --threads 8
+
+
+###############################################
+# nf-core RNA-seq PIPELINE
+###############################################
+
+# Repository options:
+# HTTPS: https://github.com/nf-core/rnaseq.git
+# SSH:   git@github.com:nf-core/rnaseq.git
+
+
+###############################################
+# STEP 3 — Run nf-core/rnaseq
+#
+# --input  : samplesheet.csv with FASTQ paths
+# --outdir : output directory
+# --gtf    : gene annotation file
+# --fasta  : reference genome
+# -profile docker : run everything inside Docker
+###############################################
+
+nextflow run nf-core/rnaseq \
+    --input <samplesheet.csv> \
+    --outdir <OUTDIR> \
+    --gtf <genes.gtf> \
+    --fasta <genome.fa> \
+    -profile docker
+
+
+###############################################
+# nf-core DIFFERENTIAL ABUNDANCE PIPELINE
+###############################################
+
+# Repository options:
+# HTTPS: https://github.com/nf-core/differentialabundance.git
+# SSH:   git@github.com:nf-core/differentialabundance.git
+# GitHub CLI:
+# gh repo clone nf-core/differentialabundance
+
+
+###############################################
+# STEP 4 — Run differential abundance analysis
+#
+# --input     : samplesheet.csv
+# --contrasts : contrasts.csv (group comparisons)
+# --matrix    : counts.tsv from RNA-seq
+# --gtf       : same gene annotation
+# --outdir    : output directory
+# -profile rnaseq,docker : use rnaseq settings + Docker
+###############################################
+
+nextflow run nf-core/differentialabundance \
+     --input <samplesheet.csv> \
+     --contrasts <contrasts.csv> \
+     --matrix <counts.tsv> \
+     --gtf <genes.gtf> \
+     --outdir <OUTDIR>  \
+     -profile rnaseq,docker
+
+
+
