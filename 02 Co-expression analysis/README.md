@@ -7,6 +7,8 @@ This script performs a complete **Weighted Gene Co-expression Network Analysis (
 1. A gene-level RNA-seq expression matrix  
 2. A sample trait table  
 
+<img width="459" height="244" alt="image" src="https://github.com/user-attachments/assets/94741eca-afff-47cd-b514-08dd81767ac3" />
+
 The workflow includes:
 
 - Sample clustering and outlier detection  
