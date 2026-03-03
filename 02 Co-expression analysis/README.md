@@ -202,18 +202,3 @@ Or inside R:
 ```r
 source("WGCNA.R")
 ```
-
----
-
-# Reproducibility Notes
-
-For reproducible analyses, record:
-
-- Input file versions or checksums  
-- Selected `softPower`  
-- `networkType`  
-- `minModuleSize`  
-- `MEDissThres`  
-- `cytoscape_edge_threshold`  
-
-Given identical inputs and parameters, the workflow produces deterministic results.
