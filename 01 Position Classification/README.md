@@ -4,6 +4,8 @@
 
 This module classifies small RNA (sRNA) genomic coordinates relative to annotated gene intervals in a strand-aware manner.
 
+<img width="678" height="615" alt="image" src="https://github.com/user-attachments/assets/dbc7baf3-39d3-4336-bcd1-ba38865d0308" />
+
 Each sRNA is assigned to one of the following categories:
 
 - **Intragenic**
