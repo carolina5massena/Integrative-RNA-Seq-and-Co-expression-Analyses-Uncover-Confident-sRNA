@@ -124,7 +124,7 @@ Each target gene is associated with the strongest supported sRNA interaction.
 ## Network and Functional Analysis
 
 - **WGCNA (R package)**  
-  https://cran.r-project.org/package=WGCNA  
+  https://doi.org/10.1186/1471-2105-9-559
 
 - **STRING database**  
   https://string-db.org  
