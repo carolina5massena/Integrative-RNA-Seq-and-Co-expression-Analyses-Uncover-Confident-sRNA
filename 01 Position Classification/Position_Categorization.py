@@ -7,13 +7,13 @@ import re
 # CONFIGURATION
 ###############################################
 
-GTF_FILE = "BMB.gtf"
+GTF_FILE = "Test_annotation.gtf"
 
 GTF_FEATURE = "exon"          # feature type in GTF
 GTF_ID_FIELD = "exon_id"      # attribute key to extract
 
 SRNA_PREFIX = "srn_"
-GENE_PREFIX = "SABB"
+GENE_PREFIX = "gene"
 
 SRNA_RENAME_PREFIX = "sRNA"
 GENE_RENAME_PREFIX = "Gene"
