@@ -3,7 +3,7 @@
 # ======================================================================================
 
 # ---- File paths ----
-expr_counts_tsv   <- "salmon.merged.gene_counts.tsv"   # expression matrix with gene_name column
+expr_counts_tsv   <- "Count_test.tsv"   # expression matrix with gene_name column
 traits_csv        <- "table_treatment.csv"             # sample trait table
 
 # ---- Required column names in your files ----
