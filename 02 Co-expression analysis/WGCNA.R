@@ -1,3 +1,8 @@
+library(WGCNA)
+library(tibble)
+library(fastDummies)
+library(flashClust)
+
 # ======================================================================================
 # USER INPUTS (edit only this section)
 # ======================================================================================
@@ -7,7 +12,7 @@ expr_counts_tsv   <- "Count_test.tsv"   # expression matrix with gene_name colum
 traits_csv        <- "table_treatment.csv"             # sample trait table
 
 # ---- Required column names in your files ----
-gene_id_col       <- "gene_name"   # column in expr_counts_tsv that contains gene names
+gene_id_col       <- "Geneid"   # column in expr_counts_tsv that contains gene names
 trait_sample_col  <- "rownames"    # column in traits_csv that matches sample IDs (rownames(datExpr))
 treatment_col     <- "treatment"   # categorical column to dummy-encode
 
@@ -66,17 +71,32 @@ if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 op <- function(x) file.path(out_dir, x)
 
 # Threading
-allowWGCNAThreads(nThreads = n_threads)
+enableWGCNAThreads(nThreads = n_threads)
 
 # -----------------------------
 # Expression loading
 # -----------------------------
-SAbatch <- read.table(expr_counts_tsv,
-                      header = TRUE, sep = "\t",
-                      stringsAsFactors = FALSE) %>%
-  group_by(.data[[gene_id_col]]) %>%
-  summarise(across(where(is.numeric), sum), .groups = "drop") %>%
-  column_to_rownames(var = gene_id_col)
+raw_counts <- read.table(
+  expr_counts_tsv,
+  header = TRUE,
+  sep = "\t",
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+num_cols <- sapply(raw_counts, is.numeric)
+num_cols[match(gene_id_col, names(raw_counts))] <- FALSE
+
+SAbatch_df <- aggregate(
+  raw_counts[, num_cols, drop = FALSE],
+  by = list(raw_counts[[gene_id_col]]),
+  FUN = sum,
+  na.rm = TRUE
+)
+
+colnames(SAbatch_df)[1] <- gene_id_col
+rownames(SAbatch_df) <- SAbatch_df[[gene_id_col]]
+SAbatch <- SAbatch_df[, setdiff(names(SAbatch_df), gene_id_col), drop = FALSE]
 
 SAdatExpr0 <- as.data.frame(t(SAbatch))
 
