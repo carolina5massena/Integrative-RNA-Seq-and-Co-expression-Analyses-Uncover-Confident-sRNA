@@ -20,6 +20,7 @@ The workflow combines sequence-based predictions with transcriptomic and network
 
 ```
 .
+├── 00_Test_data
 ├── 01_Position_Classification/
 ├── 02_Co-expression_analysis/
 ├── 03_Filters/
