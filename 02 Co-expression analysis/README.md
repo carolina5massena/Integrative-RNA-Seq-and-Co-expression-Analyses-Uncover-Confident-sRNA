@@ -177,12 +177,13 @@ To select `softPower`:
 Install before running:
 
 ```r
-install.packages(c(
-  "tidyverse",
-  "WGCNA",
-  "flashClust",
-  "fastDummies"
-))
+install.packages(c("vctrs", "tibble", "fastDummies", "flashClust"))
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install("WGCNA", ask = FALSE, update = FALSE)
 ```
 
 The script internally enables multithreading using `allowWGCNAThreads()`.
