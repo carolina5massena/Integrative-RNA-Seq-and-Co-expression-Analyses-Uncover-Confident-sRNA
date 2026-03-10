@@ -98,7 +98,7 @@ Each target gene is associated with the strongest supported sRNA interaction.
   https://www.tbi.univie.ac.at/RNA/  
 
 - **TargetRNA3**  
-  http://cs.wellesley.edu/~btjaden/TargetRNA2/  
+  https://cs.wellesley.edu/~btjaden/TargetRNA3 
 
 - **sRNARFTarget**  
   https://github.com/BioinformaticsLabAtMUN/sRNARFTarget
