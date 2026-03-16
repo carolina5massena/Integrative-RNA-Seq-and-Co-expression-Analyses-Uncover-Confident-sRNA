@@ -8,7 +8,6 @@ This repository provides a complete computational framework to identify and prio
 - RNA-seq differential expression analysis  
 - Cross-strain regulatory consistency  
 - Co-expression network analysis (WGCNA)  
-- STRING network module integration  
 - Multi-tool interaction prediction filtering  
 
 The workflow combines sequence-based predictions with transcriptomic and network-level evidence to produce high-confidence regulatory interactions.
