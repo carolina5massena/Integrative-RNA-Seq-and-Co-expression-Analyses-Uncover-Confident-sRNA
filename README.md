@@ -12,26 +12,11 @@ This repository provides a framework to identify and prioritize biologically con
 6. Run **03 Filters**
 
 The workflow combines sequence-based predictions with transcriptomic and network-level evidence to produce high-confidence regulatory interactions.
+A more complete description of each of the modes and their use is available in the readme file within each module.
 
 <img width="913" height="440" alt="image" src="https://github.com/user-attachments/assets/fec07b3b-7940-4e5a-b931-9b27616445b3" />
 ---
 
-# Repository Structure
-
-A more complete description of each of the modes and their use is available in the readme file within each module.
-
-```
-.
-├── 00_Test_data
-├── 01_Position_Classification/
-├── 02_Co-expression_analysis/
-├── 03_Filters/
-└── README.md
-```
-
-The modules must be executed in order.
-
----
 
 # Required External Tools
 
