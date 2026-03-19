@@ -17,6 +17,8 @@ The workflow combines sequence-based predictions with transcriptomic and network
 
 # Repository Structure
 
+A more complete description of each of the modes and their use is available in the readme file within each module.
+
 ```
 .
 ├── 00_Test_data
@@ -96,9 +98,11 @@ install.packages(c(
 # Recommended Execution Order
 
 1. Run **01 Position Classification**
-2. Run RNA-seq processing and DESeq2 (AUXILIARY COMMANDS)
+2. Run RNA-seq processing (AUXILIARY COMMANDS) **nf-core/rnaseq**  
 3. Run **02 Co-expression analysis**
-4. Run **03 Filters**
+4. Run DESeq2 (AUXILIARY COMMANDS) **nf-core/differentialabundance**
+5. Run sRNA-mRNA Target prediction programs
+6. Run **03 Filters**
 
 # Contact
 
