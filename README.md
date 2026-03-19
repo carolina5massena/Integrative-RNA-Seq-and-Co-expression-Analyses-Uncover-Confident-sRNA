@@ -30,63 +30,6 @@ The modules must be executed in order.
 
 ---
 
-# Pipeline Overview
-
-## Step 01 — Position Classification
-
-Classifies predicted sRNAs relative to annotated genes:
-
-- Intragenic  
-- Antisense  
-- 5′ UTR  
-- 3′ UTR  
-- Intergenic  
-
-### Input
-- sRNA genomic coordinates  
-- Gene annotation (GTF or processed table)
-
-### Output
-- Annotated sRNA position classification table
-
----
-
-## Step 02 — Co-expression Analysis (WGCNA)
-
-Constructs weighted gene co-expression networks and identifies biologically relevant modules.
-
-### Input
-- Gene-level expression matrix (RNA-seq counts)
-- Trait table (experimental condition)
-
-### Output
-- Gene modules
-- Module–trait relationships
-- Hub genes
-- Cytoscape network files
-
----
-
-## Step 03 — sRNA–mRNA Filtering Pipeline
-
-Integrates:
-
-- IntaRNA predictions  
-- RNAplex predictions  
-- TargetRNA3 predictions  
-- sRNARFTarget predictions  
-- Differential expression (DESeq2)
-- Cross-strain regulation consistency
-- STRING module membership
-- STRING interaction weights
-
-### Output
-- Final high-confidence sRNA–mRNA interaction table
-
-Each target gene is associated with the strongest supported sRNA interaction.
-
----
-
 # Required External Tools
 
 ## Interaction Prediction
@@ -125,9 +68,6 @@ Each target gene is associated with the strongest supported sRNA interaction.
 
 - **WGCNA (R package)**  
   https://doi.org/10.1186/1471-2105-9-559
-
-- **STRING database**  
-  https://string-db.org  
 
 ---
 
