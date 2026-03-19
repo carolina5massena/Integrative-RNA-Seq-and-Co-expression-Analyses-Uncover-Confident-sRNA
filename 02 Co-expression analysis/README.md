@@ -30,7 +30,7 @@ The script requires **two mandatory input files**.
 Defined in the script as:
 
 ```r
-expr_counts_tsv <- "salmon.merged.gene_counts.tsv"
+expr_counts_tsv <- "Count_test.tsv"
 ```
 
 ### Required Format
