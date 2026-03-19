@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository provides a complete computational framework to identify and prioritize biologically consistent sRNA–mRNA regulatory interactions by integrating:
+This repository provides a framework to identify and prioritize biologically consistent sRNA–mRNA regulatory interactions by integrating:
 
 - Genomic position classification  
 - Co-expression network analysis (WGCNA)  
