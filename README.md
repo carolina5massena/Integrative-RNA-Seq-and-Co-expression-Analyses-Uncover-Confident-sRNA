@@ -95,10 +95,10 @@ install.packages(c(
 
 # Recommended Execution Order
 
-1. Run **01_Position_Classification**
-2. Run RNA-seq processing and DESeq2
-3. Run **02_Co-expression_analysis**
-4. Run **03_Filters**
+1. Run **01 Position Classification**
+2. Run RNA-seq processing and DESeq2 (AUXILIARY COMMANDS)
+3. Run **02 Co-expression analysis**
+4. Run **03 Filters**
 
 # Contact
 
