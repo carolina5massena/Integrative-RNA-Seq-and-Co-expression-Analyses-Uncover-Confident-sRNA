@@ -27,7 +27,7 @@ The script requires the following input files.
 Defined in the script:
 
 ```python
-PREDICOES_CSV = "Todas_as_predições_Orthology.csv"
+PREDICOES_CSV = "Prediction_test.csv"
 ```
 
 ### Required Columns
@@ -52,7 +52,7 @@ Defined in the script:
 
 ```python
 DEG_FILES = [
-    "biofilm_vs_plank_N315.deseq2.results.tsv",
+    "DEG_test.tsv",
     ...
 ]
 ```
@@ -79,7 +79,7 @@ Filtering applied:
 Defined in the script:
 
 ```python
-MODULE_NODES_FILE = "nodes.txt"
+MODULE_NODES_FILE = "CytoscapeInput-nodes.txt"
 ```
 
 Required columns:
@@ -96,7 +96,7 @@ Required columns:
 Defined in the script:
 
 ```python
-MODULE_EDGES_FILE = "edges.txt"
+MODULE_EDGES_FILE = "CytoscapeInput-edges.txt"
 ```
 
 Required columns:
