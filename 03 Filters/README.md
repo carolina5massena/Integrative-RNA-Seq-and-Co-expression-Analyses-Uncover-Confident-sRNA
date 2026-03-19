@@ -2,13 +2,6 @@
 
 ## Overview
 
-This module integrates sRNA–mRNA interaction predictions with:
-
-- Differential expression (DESeq2) results across multiple strains  
-- Cross-strain consistency filtering  
-- STRING network module membership  
-- STRING edge weights  
-
 The pipeline produces a **high-confidence, module-consistent, cross-strain-supported interaction table**.
 
 The workflow includes:
@@ -16,7 +9,6 @@ The workflow includes:
 1. Energy and probability filtering of predicted interactions  
 2. Cross-strain DEG consistency filtering  
 3. Annotation of sRNA and target DEG status  
-4. STRING module consistency filtering  
 5. Network weight integration  
 6. Selection of the strongest sRNA per target  
 
@@ -82,12 +74,12 @@ Filtering applied:
 
 ---
 
-## 3) STRING Module Nodes File (TSV)
+## 3) WGCNA nodes Module Nodes File (TSV)
 
 Defined in the script:
 
 ```python
-MODULE_NODES_FILE = "Table S12 - nodes.txt"
+MODULE_NODES_FILE = "nodes.txt"
 ```
 
 Required columns:
@@ -99,12 +91,12 @@ Required columns:
 
 ---
 
-## 4) STRING Module Edges File (TSV)
+## 4) WGCNA edges Module Edges File (TSV)
 
 Defined in the script:
 
 ```python
-MODULE_EDGES_FILE = "Table S13- edges.txt"
+MODULE_EDGES_FILE = "edges.txt"
 ```
 
 Required columns:
@@ -155,7 +147,7 @@ Both sRNA and target must have consistent DEG status.
 
 ---
 
-## Step 3 — STRING Module Consistency
+## Step 3 — WGCNA Module Consistency
 
 Only interactions where:
 
@@ -169,7 +161,6 @@ are retained.
 
 ## Step 4 — Network Weight Selection
 
-- STRING edge weights are attached.
 - For each target, only the sRNA with the highest weight is retained.
 
 ---
@@ -190,7 +181,6 @@ The final output contains high-confidence interactions including:
 - Probability scores  
 - DEG status  
 - Module annotation  
-- STRING edge weight  
 
 Each target appears only once (best-weight interaction retained).
 
