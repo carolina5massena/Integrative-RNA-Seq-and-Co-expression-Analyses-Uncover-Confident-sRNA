@@ -171,7 +171,6 @@ If this repository is used in research, please cite:
 - TargetRNA3  
 - sRNARFTarget  
 - WGCNA  
-- STRING database  
 - nf-core RNA-seq  
 
 ---
