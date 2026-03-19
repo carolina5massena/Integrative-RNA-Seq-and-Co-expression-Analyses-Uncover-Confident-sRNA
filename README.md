@@ -5,8 +5,6 @@
 This repository provides a complete computational framework to identify and prioritize biologically consistent sRNA–mRNA regulatory interactions by integrating:
 
 - Genomic position classification  
-- RNA-seq differential expression analysis  
-- Cross-strain regulatory consistency  
 - Co-expression network analysis (WGCNA)  
 - Multi-tool interaction prediction filtering  
 
