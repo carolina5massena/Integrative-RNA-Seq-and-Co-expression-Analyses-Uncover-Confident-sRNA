@@ -100,21 +100,6 @@ install.packages(c(
 3. Run **02_Co-expression_analysis**
 4. Run **03_Filters**
 
----
-
-# Citation
-
-If this repository is used in research, please cite:
-
-- IntaRNA  
-- ViennaRNA / RNAplex  
-- TargetRNA3  
-- sRNARFTarget  
-- WGCNA  
-- nf-core RNA-seq  
-
----
-
 # Contact
 
 For issues or reproducibility questions, please open a GitHub issue in this repository.
