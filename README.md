@@ -15,7 +15,8 @@ The workflow combines sequence-based predictions with transcriptomic and network
 
 A more complete description of each of the modes and their use is available in the readme file within each module.
 
-<img width="913" height="440" alt="image" src="https://github.com/user-attachments/assets/fec07b3b-7940-4e5a-b931-9b27616445b3" />
+<img width="596" height="341" alt="image" src="https://github.com/user-attachments/assets/a22fa8da-486a-4974-b2df-9067d51f78e3" />
+
 ---
 
 
