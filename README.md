@@ -17,7 +17,7 @@ A more complete description of each of the modes and their use is available in t
 
 <img width="606" height="340" alt="image" src="https://github.com/user-attachments/assets/8f1a853f-b106-4f29-a660-7e94f5b9712e" />
 
-**Note** The processes shown in the figure with a dotted outline were not included in this repository.
+*Note: The processes shown in the figure with a dotted outline were not included in this repository.*
 ---
 
 
