@@ -11,7 +11,7 @@ A more complete description of each of the modes and their use is available in t
 *Note: The processes shown in the figure with a dotted outline were not included in this repository.*
 
 ---
-#Test Data and Expected Results
+# Test Data and Expected Results
 
 A tutorial explaining how to use this program, along with the expected results, is provided in the PDF file named “Run first test.”
 
