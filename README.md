@@ -2,15 +2,6 @@
 
 ## Overview
 
-This repository provides a framework to identify and prioritize biologically consistent sRNA–mRNA regulatory interactions by integrating:
-
-1. Run **01 Position Classification**
-2. Run RNA-seq processing (AUXILIARY COMMANDS) **nf-core/rnaseq**  
-3. Run **02 Co-expression analysis**
-4. Run DESeq2 (AUXILIARY COMMANDS) **nf-core/differentialabundance**
-5. Run sRNA-mRNA Target prediction programs
-6. Run **03 Filters**
-
 The workflow combines sequence-based predictions with transcriptomic and network-level evidence to produce high-confidence regulatory interactions.
 
 A more complete description of each of the modes and their use is available in the readme file within each module.
@@ -20,9 +11,13 @@ A more complete description of each of the modes and their use is available in t
 *Note: The processes shown in the figure with a dotted outline were not included in this repository.*
 
 ---
+#Test Data and Expected Results
 
+A tutorial explaining how to use this program, along with the expected results, is provided in the PDF file named “Run first test.”
 
-# Required External Tools
+---
+
+# Optional External Tools
 
 ## Interaction Prediction
 
