@@ -543,13 +543,11 @@ Merged (inner join): 32789 target-sRNA pairs
 Combined prediction table: 32789 rows, 10 columns.
 ```
 
-The resulting `Prediction_combined.csv` has the same columns as the bundled
-`Prediction_test.csv` and is used as the prediction input in the next step.
+The resulting `Prediction_combined.csv` is used as the prediction input in the next step.
 
 ### 5. Filtering
 
-1. **Prediction CSV:** select `Prediction_combined.csv` (from step 4) — or the
-   bundled `Prediction_test.csv`.
+1. **Prediction CSV:** select `Prediction_combined.csv`.
 2. **DEG TSV files:** add both `DEG_result_A.tsv` and `DEG_result_B.tsv`.
 3. **Cytoscape Node:** add `CytoscapeInput-nodes.txt`.
 4. **Cytoscape Edges:** add `CytoscapeInput-edges.txt`.
