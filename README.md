@@ -569,9 +569,6 @@ After best_per_target selection: 146
 Final interactions: 146
 ```
 
-*(With the bundled `Prediction_test.csv` the totals differ slightly — 33996
-predictions — but the final count is also 146.)*
-
 #### Optional — sRNA location filter
 
 You can restrict the results to sRNAs of a chosen genomic category using the
