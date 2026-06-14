@@ -3,7 +3,7 @@
 # (the setup scripts do this for you inside a local .venv)
 
 PySide6>=6.5      # GUI framework (app.py)
-pandas>=1.5       # data wrangling (pipeline_logic.py, Position_Categorization.py)
+pandas>=1.5       # data wrangling (pipeline_logic.py)
 numpy>=1.23       # numerics
 openpyxl>=3.0     # Excel (.xlsx) writing for pandas .to_excel()
 

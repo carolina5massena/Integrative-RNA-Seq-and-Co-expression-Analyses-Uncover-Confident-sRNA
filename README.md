@@ -2,12 +2,16 @@
 
 A reproducible pipeline that identifies and prioritizes biologically consistent
 **sRNA–mRNA regulatory interactions** by combining sequence-based target
-prediction with transcriptomic and network-level evidence. A desktop GUI wraps
-the analysis steps so the full workflow can be run without writing code.
+prediction with transcriptomic and network-level evidence.
 
-> **New here?** Jump straight to the [**Quick Start**](#quick-start) to install,
-> then follow the [**Tutorial — Running the First Test**](#tutorial--running-the-first-test)
-> to run the whole pipeline end-to-end on the bundled example data.
+Everything runs through a single **desktop GUI** — no scripting required. The GUI
+is organized as five tabs that take you from a genome annotation to a short list
+of high-confidence interactions, and this README documents every tab and every
+option in one place.
+
+> **New here?** Run the [**Quick Start**](#quick-start) to install and launch the
+> app, then follow the [**Tutorial — Running the First Test**](#tutorial--running-the-first-test)
+> to reproduce a full run on the bundled example data.
 
 ---
 
@@ -18,9 +22,13 @@ the analysis steps so the full workflow can be run without writing code.
 - [Required External Tools](#required-external-tools)
 - [Software Requirements](#software-requirements)
 - [Quick Start](#quick-start)
-- [The GUI](#the-gui)
+- [Using the GUI](#using-the-gui)
+  - [01 Position Classification](#01-position-classification)
+  - [02 Co-expression Analysis (WGCNA)](#02-co-expression-analysis-wgcna)
+  - [03 Differential Expression (DESeq2)](#03-differential-expression-deseq2)
+  - [04 Combine Predictions](#04-combine-predictions)
+  - [05 Filters](#05-filters)
 - [Tutorial — Running the First Test](#tutorial--running-the-first-test)
-- [Pipeline Modules (reference)](#pipeline-modules-reference)
 - [Auxiliary RNA-Seq Commands](#auxiliary-rna-seq-commands)
 - [Troubleshooting](#troubleshooting)
 - [Contact & Citation](#contact--citation)
@@ -34,16 +42,24 @@ data to a short list of high-confidence regulatory interactions:
 
 1. **Position Classification** — classify each sRNA relative to annotated genes.
 2. **RNA-seq processing** — quantify expression with `nf-core/rnaseq`
-   *(see [Auxiliary Commands](#auxiliary-rna-seq-commands))*.
+   *(run outside the GUI; see [Auxiliary Commands](#auxiliary-rna-seq-commands))*.
 3. **Co-expression analysis (WGCNA)** — build a gene network and detect modules.
-4. **Differential expression (DESeq2)** — find differentially expressed genes
-   *(also available via [Auxiliary Commands](#auxiliary-rna-seq-commands) using `nf-core/differentialabundance`)*.
-5. **Target prediction** — run external sRNA–mRNA prediction tools.
-6. **Filtering & integration** — combine all evidence into a final interaction table.
+4. **Differential expression (DESeq2)** — find differentially expressed genes.
+5. **Target prediction** — run external sRNA–mRNA prediction tools
+   *(run outside the GUI; see [Auxiliary Commands](#auxiliary-rna-seq-commands))*.
+6. **Combine & filter** — merge the predictions and filter them against the
+   expression and network evidence into a final interaction table.
 
 By requiring agreement across sequence prediction, differential expression, and
 network module membership, the workflow yields interactions supported by multiple
 independent signals.
+
+The GUI covers steps 1, 3, 4 and 6 directly, and configures + runs the WGCNA
+analysis for step 3. Steps that depend on heavy external tools — RNA-seq
+quantification and the four target-prediction programs — are run from the command
+line using the reference commands in
+[`AUXILIARY_COMMANDS.sh`](AUXILIARY_COMMANDS.sh), and their outputs are then
+loaded back into the GUI.
 
 <img width="606" height="340" alt="Pipeline overview" src="https://github.com/user-attachments/assets/8f1a853f-b106-4f29-a660-7e94f5b9712e" />
 
@@ -55,43 +71,36 @@ independent signals.
 
 ```
 .
-├── README.md                      ← you are here (start point + tutorial)
+├── README.md                      ← you are here (full guide + tutorial)
 ├── INSTALL.md                     ← detailed install & troubleshooting
 ├── requirements.txt               ← Python dependencies
 ├── install_packages.R             ← R/Bioconductor dependencies
 ├── setup.bat / setup.sh           ← one-click environment setup
 ├── run.bat   / run.sh             ← launch the GUI
-├── AUXILIARY_COMMANDS.sh          ← SRA download + nf-core RNA-seq / DESeq2 commands
+├── AUXILIARY_COMMANDS.sh          ← SRA download, nf-core RNA-seq, target prediction
 │
-├── GUI/                           ← PySide6 desktop application
-│   ├── app.py                     ← the interface
-│   ├── pipeline_logic.py          ← step implementations
-│   └── README.md                  ← GUI details
-│
-├── pipeline/                      ← standalone (command-line) analysis modules
-│   ├── 01_position_classification/   ← sRNA position categorization (Python)
-│   ├── 02_coexpression_wgcna/        ← WGCNA network analysis (R)
-│   └── 05_filters/                   ← evidence integration & filtering (Python)
+├── GUI/                           ← the desktop application (everything runs here)
+│   ├── app.py                     ← the PySide6 interface (the five tabs)
+│   └── pipeline_logic.py          ← the analysis implementations
 │
 ├── data/                          ← example inputs for the tutorial
 ├── Results/                       ← example outputs produced by the tutorial
 └── docs/                          ← tutorial as PDF / DOCX (archived copies)
 ```
 
-Each module under `pipeline/` contains its own `README.md` with a detailed
-description of inputs, outputs, and parameters — see
-[Pipeline Modules](#pipeline-modules-reference) for links. The `pipeline/`
-modules and the GUI are two ways to run the same analyses: use the GUI for a
-guided, no-code workflow, or the standalone scripts for command-line / scripted
-runs.
+The entire workflow is driven by the GUI in `GUI/app.py`; `pipeline_logic.py`
+holds the analysis code and the embedded R templates it generates and runs. There
+are no separate command-line modules to maintain — every step and option lives in
+the GUI and is documented in [Using the GUI](#using-the-gui).
 
 ---
 
 ## Required External Tools
 
-Target prediction is performed by external programs, which must be installed
-separately. Run any subset; the [Filters](#pipeline-modules-reference) step
-combines whichever outputs are available.
+Target prediction is performed by external programs, installed separately. Run
+any subset; the [Combine Predictions](#04-combine-predictions) step merges
+whichever outputs are available. See
+[Auxiliary RNA-Seq Commands](#auxiliary-rna-seq-commands) for the exact commands.
 
 | Tool | Purpose | Link |
 |------|---------|------|
@@ -100,13 +109,17 @@ combines whichever outputs are available.
 | **TargetRNA3** | Target prediction with probability score | https://cs.wellesley.edu/~btjaden/TargetRNA3 |
 | **sRNARFTarget** | Machine-learning target prediction | https://github.com/BioinformaticsLabAtMUN/sRNARFTarget |
 
+RNA-seq quantification additionally uses the SRA Toolkit, Nextflow, Docker, and
+the `nf-core/rnaseq` pipeline.
+
 ---
 
 ## Software Requirements
 
 The pipeline uses two runtimes:
 
-- **Python ≥ 3.10** — the GUI and the Python analysis steps.
+- **Python ≥ 3.10** — the GUI and the Python analysis steps (Position
+  Classification, Combine Predictions, Filters).
 - **R ≥ 4.1** — the WGCNA and DESeq2 analyses.
 
 Install those two once per machine. The setup scripts below handle every Python
@@ -152,22 +165,280 @@ python GUI/app.py
 
 ---
 
-## The GUI
+## Using the GUI
 
-A PySide6 desktop application (`GUI/app.py`) wraps the analysis steps behind a
-tabbed interface. Every input is editable in the UI, each tab is self-contained,
-and the path to `Rscript` is detected automatically and pre-filled.
+The application is a tabbed interface. Every input is editable in the UI, each
+tab is self-contained, and the path to `Rscript` is detected automatically and
+pre-filled where R is needed. Each analysis tab has its own **Run** button; work
+runs in a background thread and streams a log, and a dialog reports
+success/failure.
 
 | Tab | What it does | Runtime |
 |-----|--------------|---------|
-| **01 Position Classification** | Classifies sRNAs from a GTF file using overlap threshold and UTR window. | Python |
-| **02 Co-expression analysis** | Configures and runs WGCNA; generates `WGCNA_configured.R`. | R |
-| **03 Differential Expression** | Runs DESeq2 on a count matrix + metadata; generates `DESeq2_configured.R` and one DEG file per comparison. | R |
-| **04 Combine Predictions** | Merges the four target-prediction outputs into one `Prediction_combined.csv`. | Python |
-| **05 Filters** | Integrates predictions, DEGs, and WGCNA modules into the final table. | Python |
+| [**01 Position Classification**](#01-position-classification) | Classifies each sRNA relative to annotated genes. | Python |
+| [**02 Co-expression Analysis**](#02-co-expression-analysis-wgcna) | Configures and runs WGCNA; builds the co-expression network. | R |
+| [**03 Differential Expression**](#03-differential-expression-deseq2) | Runs DESeq2 on a count matrix + metadata. | R |
+| [**04 Combine Predictions**](#04-combine-predictions) | Merges the four target-prediction outputs into one table. | Python |
+| [**05 Filters**](#05-filters) | Integrates predictions, DEGs, location, and network evidence into the final table. | Python |
 
-Each analysis tab has its own **Run** button; work runs in a background thread
-and streams a log. See [`GUI/README.md`](GUI/README.md) for full details.
+A typical run goes top to bottom: classify sRNAs (01), build the network (02),
+call DEGs (03), assemble the prediction table (04), then filter everything into
+the final list (05).
+
+---
+
+### 01 Position Classification
+
+Classifies each small RNA's genomic coordinates relative to annotated gene
+intervals, in a **strand-aware** manner, and assigns one category per sRNA:
+**Intragenic**, **Antisense**, **5′ UTR**, **3′ UTR**, or **Intergenic**.
+
+**How classification works (applied hierarchically):**
+
+1. **Intragenic / Antisense** — an sRNA overlaps a gene if it is fully contained
+   in the gene interval, or the overlap is ≥ the *overlap threshold* (default 90%
+   of the sRNA length). Same strand ⇒ **Intragenic**; opposite strand ⇒
+   **Antisense**.
+2. **UTR (strand-aware)** — otherwise the sRNA is tested against the windows
+   around each gene (default ±150 bp). For `+`-strand genes: upstream ⇒ **5′ UTR**,
+   downstream ⇒ **3′ UTR**; for `-`-strand genes the assignment is reversed.
+3. **Intergenic** — anything not assigned above.
+
+**Inputs & options**
+
+| Field | Description |
+|-------|-------------|
+| GTF annotation file | Genome annotation; gene intervals are extracted from it. |
+| Feature / ID keys | Which GTF feature and attribute identify genes. |
+| sRNA & gene prefixes | Prefixes that distinguish sRNA vs gene records. |
+| Rename prefixes | Optionally relabel IDs on output. |
+| Overlap threshold | Minimum overlap (fraction of sRNA length) for Intragenic/Antisense (default 0.90). |
+| UTR window | Size of the up/downstream UTR window in bp (default 150). |
+| Output file | The annotation table to write (default `sRNA_annotation.xlsx`). |
+
+**Output** — a table (`sRNA_annotation.xlsx` by default) with `exon_id`, `start`,
+`end`, `strand`, `location` (the assigned category), and `gene_id`. This file
+feeds the optional **sRNA location filter** in [05 Filters](#05-filters).
+
+---
+
+### 02 Co-expression Analysis (WGCNA)
+
+Runs a complete **Weighted Gene Co-expression Network Analysis**: sample
+clustering and outlier detection, soft-threshold power selection, network
+construction (adjacency + TOM), dynamic module detection and merging,
+module–trait correlation, hub-gene identification, and a Cytoscape export. The
+tab assembles a configured `WGCNA_configured.R` and runs it via `Rscript`.
+
+**Inputs**
+
+- **Expression matrix (TSV)** — first column a gene identifier, remaining columns
+  numeric sample values; no missing values. Duplicate gene IDs are summed. Sample
+  column names must match the trait table exactly.
+- **Trait table (CSV)** — a sample-ID column plus at least one categorical trait
+  used for module–trait correlation.
+
+**Key options**
+
+| Field | Description |
+|-------|-------------|
+| Gene ID / sample / treatment columns | Column names in the two inputs. |
+| Soft power | The soft-thresholding power (see below). |
+| Min module size | Minimum genes per module. |
+| Deep split | Module-splitting sensitivity. |
+| Merge cut height | Threshold for merging similar modules. |
+| Cytoscape threshold | Edge-weight threshold for the network export. |
+| Threads | Number of CPU threads. |
+| Network / correlation type | Network and correlation options. |
+
+**Choosing the soft power:** run once, open
+`soft_thresholding_power_selection.png`, pick a power where the scale-free
+topology fit (R²) is acceptable (commonly ≥ 0.8), set it, and re-run.
+
+**Outputs** (written to the chosen results folder):
+
+```
+sample_dendrogram_outlier_check.png
+sample_dendrogram_with_traits.png
+soft_thresholding_power_selection.png
+gene_dendrogram_with_modules.png
+Module_Trait_Heatmap.pdf
+gene_module_membership.csv
+top_hub_genes_per_module.csv
+CytoscapeInput-edges.txt        ← fromNode, toNode, weight  (used by 05 Filters)
+CytoscapeInput-nodes.txt        ← nodeName, nodeAttr (module)  (used by 05 Filters)
+```
+
+---
+
+### 03 Differential Expression (DESeq2)
+
+Runs DESeq2 on a raw count matrix plus sample metadata, producing the DEG tables
+used for the cross-strain consistency filter. The tab generates a configured
+`DESeq2_configured.R` and runs it via `Rscript`.
+
+**Inputs & options**
+
+| Field | Description |
+|-------|-------------|
+| Count matrix (TSV) | Raw gene-level counts. |
+| Sample metadata (CSV) | Sample annotations. |
+| Gene-ID / sample / condition columns | Column names in the inputs. |
+| Reference vs. test level | Which condition levels to contrast. |
+| Minimum-count filter | Drop low-count genes before testing. |
+| **Comparison column** | If set, splits the metadata into groups and runs DESeq2 **once per group**, writing one DEG file per comparison (e.g. `DEG_result_A.tsv`, `DEG_result_B.tsv`, …). |
+
+**Output** — one TSV per comparison containing `gene_id`, `log2FoldChange`,
+`padj` (plus `baseMean`, `pvalue`, `lfcSE`, `stat`). These plug straight into the
+DEG inputs of [05 Filters](#05-filters).
+
+> RNA-seq quantification (producing the count matrix) and an alternative
+> differential-abundance route are run outside the GUI — see
+> [Auxiliary RNA-Seq Commands](#auxiliary-rna-seq-commands).
+
+---
+
+### 04 Combine Predictions
+
+Merges the native output of up to four target-prediction programs into a single
+prediction table (`Prediction_combined.csv`) with the columns the Filters step
+expects. Pairs are merged on each `(Target, sRNA)` combination; every file is
+optional — leave a program blank to skip it.
+
+**Inputs**
+
+| Field | Expected format |
+|-------|-----------------|
+| intaRNA file | `;`-separated: `id1;id2;start1;end1;start2;end2;E` |
+| RNAplex file | blocks of `>target`, `>sRNA`, structure line with `(energy)` |
+| TargetRNA3 file | tab-separated; must include an `sRNA` column plus `Target`, `Energy`, `P-value`, `Probability` |
+| sRNARFTarget file | `sRNA_ID`, `mRNA_ID`, `Prediction_Probability` |
+
+**Options**
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| Compute empirical p-values for intaRNA / RNAplex | on | These programs report only an energy; their p-value column is derived as an empirical p-value from the energy distribution. |
+| Keep only pairs predicted by every provided program | on | Inner join across the files you supply (untick for an outer join with blanks). |
+| Relabel IDs to Gene# / sRNA# | off | Replace names with tidy `Gene1…` / `sRNA1…` labels and write a mapping file. |
+| Output CSV | `Prediction_combined.csv` | The merged prediction table. |
+
+**Output** — `Prediction_combined.csv` (same columns as the bundled
+`Prediction_test.csv`): `Target`, `sRNA`, `E_intaRNA`, `p_intaRNA`, `E_Rnaplex`,
+`p_Rnaplex`, `E_TargetRNA3`, `p_TargetRNA3`, `Probability_TargetRNA3`,
+`Probability_sRNARFTarget`.
+
+---
+
+### 05 Filters
+
+The final step. It takes the prediction table and progressively filters it
+against differential expression, genomic location, and co-expression-network
+evidence. Filtering happens in the order below; **every stage is optional and
+configurable**. Defaults shown are the GUI defaults.
+
+#### Inputs
+
+| Input | Required? | Format | Key columns |
+|-------|-----------|--------|-------------|
+| Prediction table | Optional* | CSV | `sRNA`, `Target` (+ any score columns) |
+| DEG result file(s) | Optional | TSV | `gene_id`, `log2FoldChange`, `padj` (+ `baseMean`) |
+| WGCNA nodes file | Optional | TSV | `nodeName`, `nodeAttr` |
+| WGCNA edges file | Optional* | TSV | `fromNode`, `toNode`, `weight` |
+| sRNA annotation (location) | Optional | XLSX/CSV/TSV | sRNA-ID column (e.g. `exon_id`), `location` |
+
+\* Provide **either** a prediction table **or** an edges file. Add multiple DEG
+files (comma-separated) to build a cross-strain consensus.
+
+#### Step 0 — Building the pair list
+
+- **Prediction CSV given** → pairs and their scores come from it.
+- **Prediction CSV blank** → pairs are built from the edges file: each edge with
+  exactly one endpoint whose name starts with the **sRNA prefix** (default
+  `sRNA`) becomes an sRNA→target pair; the energy/probability step is then
+  skipped (no scores available).
+
+#### Step 1 — Energy / probability filter
+
+Each metric can be individually enabled/disabled, has its own threshold, and is
+skipped automatically if its column is absent. Instead of requiring *all* enabled
+metrics (AND), you can require only **M of N** to pass.
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `E_intaRNA max (<=)` | enabled, `-2.44` | Keep IntaRNA energy at or below this. |
+| `E_Rnaplex max (<=)` | enabled, `-32.6` | Keep RNAplex energy at or below this. |
+| `E_TargetRNA3 max (<=)` | enabled, `-5.13` | Keep TargetRNA3 energy at or below this. |
+| `Probability_TargetRNA3 min (>=)` | enabled, `0.06` | Keep TargetRNA3 probability at or above this. |
+| `Probability_sRNARFTarget min (>=)` | enabled, `0.40` | Keep sRNARFTarget probability at or above this. |
+| `Min metrics that must pass` | `All enabled (AND)` | Require this many enabled metrics to pass (M-of-N); `0` = all. |
+
+#### Step 2 — DEG consistency & direction
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `padj cutoff` | `0.05` | A gene must have `padj ≤` this in a file to count there. |
+| `Min strains consistent` | `2` | Number of DEG files that must agree on direction. |
+| `Min baseMean (0 = off)` | `0.0` | Minimum DESeq2 `baseMean` for a gene to count as a DEG. |
+| `sRNA must be a DEG` | on | Drop pairs whose sRNA is not a consistent DEG. |
+| `Target must be a DEG` | on | Drop pairs whose target is not a consistent DEG. |
+| `Required sRNA direction` | `any` | Restrict to `upregulated` / `downregulated` sRNAs. |
+| `Required target direction` | `any` | Restrict to `upregulated` / `downregulated` targets. |
+| `sRNA vs target direction` | `any` | Require the pair to move in the `same` or `opposite` direction. |
+
+Direction is per gene: `log2FC > 0` ⇒ upregulated, `< 0` ⇒ downregulated.
+
+#### Step 3 — sRNA genomic location filter
+
+Restrict results to sRNAs of chosen categories, using the annotation table from
+[01 Position Classification](#01-position-classification). sRNAs absent from the
+annotation file are dropped.
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `Enable location filter` | off | Turn the location filter on. |
+| `Annotation file` | — | The `sRNA_annotation.xlsx`/`.csv` from step 01. |
+| `sRNA ID column` | `exon_id` | Column in the annotation holding the sRNA name. |
+| `Keep locations` | all ticked | Any of `Intragenic`, `Antisense`, `5' UTR`, `3' UTR`, `Intergenic`. |
+
+#### Step 4 — WGCNA module relationship
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `sRNA / target module` | `same` | Keep pairs in the **same** module, in **different** modules, or **any** (skip). |
+
+Requires the nodes file; pairs where either gene lacks a module are dropped when
+the mode is `same`/`different`.
+
+#### Step 5 — Network edge weight & selection
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `Interaction must have a network edge` | on | Drop pairs with no co-expression edge/weight. |
+| `Min edge weight (0 = off)` | `0.0` | Drop pairs whose edge weight is below this. |
+| `Keep` | `best_per_target` | `best_per_target` (one sRNA per target), `best_per_srna` (one target per sRNA), or `all`. |
+
+"Best" = the pair with the highest network edge `weight`.
+
+#### Output
+
+Default file: `filtered_weight.csv` (editable). Each retained interaction carries
+the original `sRNA`/`Target`, whichever score columns were present, and the
+annotations added during filtering:
+
+| Column(s) | Added by |
+|-----------|----------|
+| `sRNA`, `Target` | input |
+| `E_*`, `Probability_*` | input prediction table |
+| `sRNA_DEG`, `Target_DEG` | Step 2 (`upregulated` / `downregulated`) |
+| `sRNA_Location` | Step 3 (only if the location filter ran) |
+| `sRNA_Module`, `Target_Module` | Step 4 (only if the module filter ran) |
+| `weight` | Step 5 (co-expression edge weight) |
+
+> **Notes:** empirical p-values for IntaRNA/RNAplex are computed in
+> [04 Combine Predictions](#04-combine-predictions), not here; the location
+> filter drops sRNAs not found in the annotation; and no multiple-testing
+> correction is applied across interactions (filtering is threshold-based).
 
 ---
 
@@ -187,7 +458,7 @@ confirm your installation is working. *(A PDF/DOCX copy lives in [`docs/`](docs)
 ### 1. Position Classification
 
 1. Select the GTF annotation file `Test_annotation.gtf` from the `data` folder.
-3. Click **Run Position Classification**.
+2. Click **Run Position Classification**.
 
 **Expected output:**
 
@@ -207,8 +478,8 @@ Saved sRNA_annotation.xlsx in the desired output directory.
 
 1. Select `Count_test.tsv` as the expression matrix (TSV).
 2. Select `table_treatment_WGCNA.csv` as the trait table (CSV).
-4. Adjust the Rscript executable path if required.
-5. Click **Run WGCNA**.
+3. Adjust the Rscript executable path if required.
+4. Click **Run WGCNA**.
 
 The following files are generated in the results folder:
 
@@ -232,8 +503,8 @@ CytoscapeInput-nodes.txt
    metadata into groups (e.g., A, B, C, D) and runs DESeq2 once per group,
    producing one DEG file per comparison (`DEG_result_A.tsv`,
    `DEG_result_B.tsv`, …).
-5. Adjust the Rscript executable path if required.
-6. Click **Run DESeq2**.
+4. Adjust the Rscript executable path if required.
+5. Click **Run DESeq2**.
 
 **Expected output:**
 
@@ -332,19 +603,6 @@ run it on your own data.
 
 ---
 
-## Pipeline Modules (reference)
-
-Detailed documentation for each step lives in its module folder:
-
-| Module | Description | Docs |
-|--------|-------------|------|
-| **01 Position Classification** | Strand-aware classification of sRNAs as Intragenic, Antisense, 5′ UTR, 3′ UTR, or Intergenic. | [`pipeline/01_position_classification/`](pipeline/01_position_classification/README.md) |
-| **02 Co-expression (WGCNA)** | Full WGCNA workflow: clustering, soft-threshold selection, module detection, module–trait correlation, hub genes, Cytoscape export. | [`pipeline/02_coexpression_wgcna/`](pipeline/02_coexpression_wgcna/README.md) |
-| **05 Filters** | Energy/probability filtering, cross-strain DEG consistency, module consistency, and best-per-target selection. | [`pipeline/05_filters/`](pipeline/05_filters/README.md) |
-| **GUI** | The PySide6 application that drives all of the above. | [`GUI/README.md`](GUI/README.md) |
-
----
-
 ## Auxiliary RNA-Seq Commands
 
 The RNA-seq quantification and the sRNA–mRNA target-prediction programs are run
@@ -356,7 +614,7 @@ outside the GUI. Reference commands for all of them are collected in
 - Run `nf-core/rnaseq`
 - Run the four target-prediction tools — **IntaRNA**, **RNAplex**,
   **TargetRNA3**, and **sRNARFTarget** — whose outputs are merged into the
-  prediction table consumed by [05 Filters](#pipeline-modules-reference)
+  prediction table by [04 Combine Predictions](#04-combine-predictions)
 
 **Requirements:** SRA Toolkit, Nextflow, Docker, the nf-core pipelines, and the
 four prediction tools (see [Required External Tools](#required-external-tools)).
