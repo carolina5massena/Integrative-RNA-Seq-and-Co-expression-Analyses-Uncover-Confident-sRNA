@@ -446,7 +446,7 @@ annotations added during filtering:
 
 This walkthrough runs the entire pipeline on the bundled example data in
 `data/`. The expected console output is shown for each step so you can
-confirm your installation is working. *(A PDF/DOCX copy lives in [`docs/`](docs).)*
+confirm your installation is working.
 
 ### A. Installation and setup
 
