@@ -364,13 +364,20 @@ Each metric can be individually enabled/disabled, has its own threshold, and is
 skipped automatically if its column is absent. Instead of requiring *all* enabled
 metrics (AND), you can require only **M of N** to pass.
 
+By default only the four calibrated consensus metrics are enabled (the
+four-tool AND rule); the four energy/`Probability_TargetRNA3` metrics are
+shipped disabled and can be re-enabled if needed.
+
 | Option | Default | Meaning |
 |--------|---------|---------|
-| `E_intaRNA max (<=)` | enabled, `-2.44` | Keep IntaRNA energy at or below this. |
-| `E_Rnaplex max (<=)` | enabled, `-32.6` | Keep RNAplex energy at or below this. |
-| `E_TargetRNA3 max (<=)` | enabled, `-5.13` | Keep TargetRNA3 energy at or below this. |
-| `Probability_TargetRNA3 min (>=)` | enabled, `0.06` | Keep TargetRNA3 probability at or above this. |
-| `Probability_sRNARFTarget min (>=)` | enabled, `0.40` | Keep sRNARFTarget probability at or above this. |
+| `E_intaRNA max (<=)` | **disabled**, `-2.44` | Keep IntaRNA energy at or below this. |
+| `E_Rnaplex max (<=)` | **disabled**, `-32.6` | Keep RNAplex energy at or below this. |
+| `E_TargetRNA3 max (<=)` | **disabled**, `-5.13` | Keep TargetRNA3 energy at or below this. |
+| `Probability_TargetRNA3 min (>=)` | **disabled**, `0.06` | Keep TargetRNA3 probability at or above this. |
+| `Probability_sRNARFTarget min (>=)` | enabled, `0.45` | Keep sRNARFTarget probability at or above this. |
+| `p_intaRNA max (<=)` | enabled, `0.41` | Keep IntaRNA p-value at or below this. |
+| `p_Rnaplex max (<=)` | enabled, `0.76` | Keep RNAplex p-value at or below this. |
+| `p_TargetRNA3 max (<=)` | enabled, `0.89` | Keep TargetRNA3 p-value at or below this. |
 | `Min metrics that must pass` | `All enabled (AND)` | Require this many enabled metrics to pass (M-of-N); `0` = all. |
 
 #### Step 2 — DEG consistency & direction
@@ -378,13 +385,13 @@ metrics (AND), you can require only **M of N** to pass.
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `padj cutoff` | `0.05` | A gene must have `padj ≤` this in a file to count there. |
-| `Min strains consistent` | `2` | Number of DEG files that must agree on direction. |
-| `Min baseMean (0 = off)` | `0.0` | Minimum DESeq2 `baseMean` for a gene to count as a DEG. |
-| `sRNA must be a DEG` | on | Drop pairs whose sRNA is not a consistent DEG. |
-| `Target must be a DEG` | on | Drop pairs whose target is not a consistent DEG. |
-| `Required sRNA direction` | `any` | Restrict to `upregulated` / `downregulated` sRNAs. |
-| `Required target direction` | `any` | Restrict to `upregulated` / `downregulated` targets. |
-| `sRNA vs target direction` | `any` | Require the pair to move in the `same` or `opposite` direction. |
+| `Min baseMean (>=)` | **enabled**, `10.0` | Minimum DESeq2 `baseMean` for a gene to count as a DEG. |
+| `Keep log2FC >=` / `Keep log2FC <=` | **both disabled** | Optional log2FC inclusion band; off = keep any log2FC. |
+| `Consensus type` | `presence (ignore log2FC)` | `sign of log2FC` = agree on direction; `presence` = called in enough files regardless of sign. |
+| `Consensus: min files (X)` | `5` | Number of DEG files a gene must be called in to reach consensus. **Lower it to match how many DEG files you actually load** (e.g. `2` for the bundled test). |
+| `Required sRNA direction` | off (`upregulated`) | Restrict to `upregulated` / `downregulated` sRNAs. |
+| `Required target direction` | off (`upregulated`) | Restrict to `upregulated` / `downregulated` targets. |
+| `sRNA vs target direction` | off (`same`) | Require the pair to move in the `same` or `opposite` direction. |
 
 Direction is per gene: `log2FC > 0` ⇒ upregulated, `< 0` ⇒ downregulated.
 
@@ -415,16 +422,35 @@ the mode is `same`/`different`.
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `Interaction must have a network edge` | on | Drop pairs with no co-expression edge/weight. |
-| `Min edge weight (0 = off)` | `0.0` | Drop pairs whose edge weight is below this. |
-| `Keep` | `best_per_target` | `best_per_target` (one sRNA per target), `best_per_srna` (one target per sRNA), or `all`. |
+| `Min edge weight (>=)` | **disabled**, `0.0` | Drop pairs whose edge weight is below this. |
+| `Keep best per` | **enabled**, `best_per_target` | `best_per_target` (one sRNA per target), `best_per_srna` (one target per sRNA). Untick to keep all. |
+| `Top N per group` | `0` (single best) | With selection on, keep the top N partners per group by edge weight. |
 
-"Best" = the pair with the highest network edge `weight`.
+"Best" = the pair with the highest network edge `weight`. Because
+`best_per_target` keeps only the single strongest sRNA per unique target, this is
+the step that collapses many surviving pairs down to one representative per
+target.
 
 #### Output
 
-Default file: `filtered_weight.csv` (editable). Each retained interaction carries
-the original `sRNA`/`Target`, whichever score columns were present, and the
-annotations added during filtering:
+Default file: `filtered_weight.csv` (editable). Tick **Generate all intermediate
+tables** to also save the result of every filtering step next to the output CSV,
+named with a step suffix so each stage of the funnel can be inspected on its own:
+
+| File | Content |
+|------|---------|
+| `filtered_weight_step1_base.csv` | Starting sRNA–target pairs. |
+| `filtered_weight_step2_energy.csv` | After the energy/probability consensus. |
+| `filtered_weight_step3_deg.csv` | After the DEG filter. |
+| `filtered_weight_step4_wgcna.csv` | After same-module + require-edge (+ min-weight), **before** best-pair selection. |
+| `filtered_weight_step5_bestpair.csv` | After `best_per_target` / `best_per_srna` prioritization. |
+| `filtered_weight_step6_position.csv` | After the genomic-location filter (final). |
+
+A step that is skipped still writes a table (identical to the previous step) so
+the full funnel is always captured.
+
+Each retained interaction carries the original `sRNA`/`Target`, whichever score
+columns were present, and the annotations added during filtering:
 
 | Column(s) | Added by |
 |-----------|----------|
@@ -446,7 +472,7 @@ annotations added during filtering:
 
 This walkthrough runs the entire pipeline on the bundled example data in
 `data/`. The expected console output is shown for each step so you can
-confirm your installation is working.
+confirm your installation is working. *(A PDF/DOCX copy lives in [`docs/`](docs).)*
 
 ### A. Installation and setup
 
@@ -543,31 +569,39 @@ Merged (inner join): 32789 target-sRNA pairs
 Combined prediction table: 32789 rows, 10 columns.
 ```
 
-The resulting `Prediction_combined.csv` is used as the prediction input in the next step.
+The resulting `Prediction_combined.csv` has the same columns as the bundled
+`Prediction_test.csv` and is used as the prediction input in the next step.
 
 ### 5. Filtering
 
-1. **Prediction CSV:** select `Prediction_combined.csv`.
+1. **Prediction CSV:** select `Prediction_combined.csv` (from step 4) — or the
+   bundled `Prediction_test.csv`.
 2. **DEG TSV files:** add both `DEG_result_A.tsv` and `DEG_result_B.tsv`.
 3. **Cytoscape Node:** add `CytoscapeInput-nodes.txt`.
 4. **Cytoscape Edges:** add `CytoscapeInput-edges.txt`.
-5. The **Min strains consistent** value defaults to `2` — leave it as is for
-   this test.
+5. The **Consensus: min files (X)** value now defaults to `5` — the calibrated
+   whole-study setting (six RNA-seq datasets). **This small test ships only two
+   DEG files, so change it to `2`.** If you leave it at `5`, no gene can be
+   present in five files and the DEG filter empties the table.
+6. *(Optional)* Tick **Generate all intermediate tables** to also write one CSV
+   per filtering step (`filtered_weight_step1_base.csv` through
+   `_step6_position.csv`) next to the Output CSV.
 
-**Expected output (using `Prediction_combined.csv`):**
+**Expected output (using `Prediction_combined.csv`, `min files (X) = 2`, no
+location filter):**
 
 ```
-Total predictions: 32789
-After energy/probability filter (>= 5/5 of
-  ['E_intaRNA', 'E_Rnaplex', 'E_TargetRNA3',
-   'Probability_TargetRNA3', 'Probability_sRNARFTarget']): 28586
-Consistent DEGs: 572
-After DEG filter: 421
-After module filter (same): 233
-After requiring network edge: 182
-After best_per_target selection: 146
-Final interactions: 146
+Total pairs: 32789
+[1] ENERGY / PROBABILITY  (>= 4/4 of Probability_sRNARFTarget,
+    p_intaRNA, p_Rnaplex, p_TargetRNA3): removed 21639, kept 11150
+[2] DEG  (padj <= 0.05, baseMean >= 10, presence in >= 2 files): 129
+[3] WGCNA  module (same): 77; require network edge: 64
+    best_per_target (single best per target): 59
+Final interactions: 59
 ```
+
+*(With the bundled `Prediction_test.csv` the starting total is 33996 instead of
+32789, so the intermediate counts differ slightly.)*
 
 #### Optional — sRNA location filter
 
@@ -579,22 +613,56 @@ Filters tab:
 2. **Annotation file:** add `sRNA_annotation.xlsx` (produced in step 1).
 3. Under **Keep locations**, leave only **Antisense** ticked.
 
-**Expected output (Antisense only):**
+**Expected output (Antisense only, `min files (X) = 2`):**
 
 ```
-Total predictions: 32789
-After energy/probability filter (>= 5/5 of ['E_intaRNA', 'E_Rnaplex', 'E_TargetRNA3', 'Probability_TargetRNA3', 'Probability_sRNARFTarget']): 28586
-Consistent DEGs: 572
-After DEG filter: 421
-After location filter (Antisense): 101 (from 421; sRNAs not found in the annotation file are dropped)
-After module filter (same): 58
-After requiring network edge: 48
-After best_per_target selection: 46
-Final interactions: 46
+Total pairs: 32789
+[1] ENERGY / PROBABILITY  (>= 4/4 metrics): 11150
+[2] DEG  (presence in >= 2 files): 129
+[3] WGCNA  module (same): 77; require network edge: 64
+    best_per_target (single best per target): 59
+[4] POSITION CLASSIFICATION  keep Antisense: removed 37 -> 22
+Final interactions: 22
 ```
+
+The genomic-location filter always runs **last**, so it is applied after the
+`best_per_target` selection (59 pairs), keeping the 22 whose sRNA is `Antisense`.
+sRNAs not found in the annotation file are dropped.
 
 If your numbers match, the pipeline is installed correctly and you are ready to
 run it on your own data.
+
+#### Large-scale run — reproducing the published results
+
+The bundled `data/` set is a small subset for smoke-testing. To reproduce the
+values reported in the article this program accompanies, run the Filters step on
+the full-scale inputs instead:
+
+1. Download the full input dataset (prediction table, six DEG files, WGCNA
+   nodes/edges) from:
+   <https://drive.google.com/drive/folders/166prrrQZ9MAkCUC_nlXPUnniiOHwWW2K?usp=sharing>
+2. In **05 Filters**, keep the calibrated defaults. Because the full study uses
+   **six** RNA-seq datasets, the default **Consensus: min files (X) = 5** is the
+   correct value here (do **not** lower it to `2` as in the small test).
+3. Tick **Generate all intermediate tables** to write one CSV per step. A
+   reference copy of the expected step tables is available at:
+   <https://drive.google.com/drive/folders/1_W_4aiV7zdxE4kJcBU1Uvc5Cw-NFOXQq?usp=sharing>
+
+With those defaults (four-tool energy/probability AND consensus; DEG `padj ≤
+0.05`, `baseMean ≥ 10`, no log2FC band, presence in `≥ 5` of the six files; same
+WGCNA module; require a network edge; `best_per_target`; no location filter), the
+run reproduces the following funnel:
+
+| Step | File | Pairs kept |
+|------|------|-----------:|
+| Base pairs (prediction table) | `filtered_weight_step1_base.csv` | 1,731,060 |
+| Energy/probability (≥ 4/4 metrics, AND) | `filtered_weight_step2_energy.csv` | 949,716 |
+| DEG (padj ≤ 0.05, baseMean ≥ 10, presence in ≥ 5 files) | `filtered_weight_step3_deg.csv` | 149,545 |
+| WGCNA same-module + require network edge | `filtered_weight_step4_wgcna.csv` | 8,618 |
+| `best_per_target` (single best per target) | `filtered_weight_step5_bestpair.csv` | 1,290 |
+| Position filter (OFF here) | `filtered_weight_step6_position.csv` | 1,290 |
+
+**Final interactions: 1,290** (`filtered_weight.csv`).
 
 ---
 
