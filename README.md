@@ -61,7 +61,7 @@ line using the reference commands in
 [`AUXILIARY_COMMANDS.sh`](AUXILIARY_COMMANDS.sh), and their outputs are then
 loaded back into the GUI.
 
-<img width="1672" height="941" alt="sRNA_analysis_pipeline" src="https://github.com/user-attachments/assets/6200538b-94a2-481c-8d4e-12940bfaeb51" />
+<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/1061d825-f2fe-4eb7-940c-e4d211659220" />
 
 
 *Processes drawn with a dotted outline in the figure are not included in this repository.*
