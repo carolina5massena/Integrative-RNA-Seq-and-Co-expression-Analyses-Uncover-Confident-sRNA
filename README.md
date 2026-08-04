@@ -61,7 +61,7 @@ line using the reference commands in
 [`AUXILIARY_COMMANDS.sh`](AUXILIARY_COMMANDS.sh), and their outputs are then
 loaded back into the GUI.
 
-<img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/20f6f1f8-3c42-4e23-9db3-f3debeb7b761" />
+<img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/f1befba8-288f-4094-9805-0d5da8b41782" />
 
 *Processes drawn with a dotted outline in the figure are not included in this repository.*
 
